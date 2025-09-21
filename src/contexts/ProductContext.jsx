@@ -1,8 +1,7 @@
 import React, { 
   createContext, useContext, useState, useEffect, useCallback, useMemo 
 } from "react";
-import { sortBOMaterialRule } from "../utils/materialSort";
-
+import { sortBOMByMaterialRule } from "../utils/materialSort";
 const ProductContext = createContext();
 
 const formTypeRacks = ["스텐랙", "스텐랙", "하이랙", "파렛트랙 철판형"];
