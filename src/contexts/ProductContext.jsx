@@ -26,10 +26,10 @@ export const colorLabelMap = { "200kg": "270kg", "350kg": "450kg", "700kg": "550
 
 const parseSize = (s="")=>{
   const m=String(s).replace(/\s*/g, "").match(/(\d+)/);
-  return m?[a:Number(m[1]),b:Number(m[2])]:null;
+  return m?{a:Number(m[1]),b:Number(m[2])}:null;
 };
 
-const sortSizes=(arr=[])=>{...new Set(arr)}.sort((A,B)=>{
+const sortSizes=(arr=[])=>[...new Set(arr)].sort((A,B)=>{
   const a=parseSize(A),b=parseSize(B);
   if(a&&b){ if(a.a!=b.a)return a.a-b.a; if(a.b!=b.b)return a.b-b.b; }
   return String(A).localeCompare(String(B),"ko");
@@ -40,8 +40,8 @@ const parseNum=(s="")=>{
   return m?Number(m[0]):Number.POSITIVE_INFINITY;
 };
 
-const sortHeights=(arr=[])=>{...new Set(arr)}.sort((a,b)=>parseNum(a)-parseNum(b));
-const sortLevels=(arr=[])=>{...new Set(arr)}.sort((a,b)=>parseNum(a)-parseNum(b));
+const sortHeights=(arr=[])=>[...new Set(arr)].sort((a,b)=>parseNum(a)-parseNum(b));
+const sortLevels=(arr=[])=>[...new Set(arr)].sort((a,b)=>parseNum(a)-parseNum(b));
 
 const HIGHRACK_550_ALIAS_VIEW_FROM_DATA = { "80x146":"80x100", "80x200":"80x150" };
 const HIGHRACK_550_ALIAS_DATA_FROM_VIEW = { "80x108":"80x146", "80x150":"80x200" };
@@ -93,11 +93,11 @@ export function ProductProvider({ children }) {
   // localStorage에서 관리자 가격 로드
   const loadAdminPrices = useCallback(async () => {
     try {
-      const stored = localStorage.getItem('admin_edit_prices') || '{}';
+      const stored = localStorage.getItem(\'admin_edit_prices\') || \'{}\';
       const priceData = JSON.parse(stored);
       setAdminPrices(priceData);
     } catch (error) {
-      console.error('관리자 단가 로드 실패:', error);
+      console.error(\'관리자 단가 로드 실패:\', error);
       setAdminPrices({});
     }
   }, []);
@@ -105,11 +105,11 @@ export function ProductProvider({ children }) {
   // localStorage에서 재고 정보 로드
   const loadInventory = useCallback(async () => {
     try {
-      const stored = localStorage.getItem('inventory_data') || '{}';
+      const stored = localStorage.getItem(\'inventory_data\') || \'{}\';
       const inventoryData = JSON.parse(stored);
       setInventory(inventoryData);
     } catch (error) {
-      console.error('재고 정보 로드 실패:', error);
+      console.error(\'재고 정보 로드 실패:\', error);
       setInventory({});
     }
   }, []);
@@ -118,11 +118,11 @@ export function ProductProvider({ children }) {
   const loadAllMaterials = useCallback(async () => {
     try {
       // 1. bomData에서 모든 자재 추출 (기존 로직)
-      const bomResponse = await fetch('./bom_data.json');
+      const bomResponse = await fetch(\'./bom_data.json\');
       const bomData = await bomResponse.json();
       
       // 2. data.json에서 가격 정보 추출 (기존 로직)
-      const dataResponse = await fetch('./data.json');
+      const dataResponse = await fetch(\'./data.json\');
       const priceData = await dataResponse.json();
       
       const materials = new Map();
@@ -139,7 +139,7 @@ export function ProductProvider({ children }) {
                   const partId = generatePartId({
                     rackType,
                     name: component.name,
-                    specification: component.specification || '',
+                    specification: component.specification || \'\',
                     unitPrice: Number(component.unit_price) || 0,
                     size,
                     height,
@@ -152,7 +152,7 @@ export function ProductProvider({ children }) {
                       partId,
                       rackType,
                       name: component.name,
-                      specification: component.specification || '',
+                      specification: component.specification || \'\',
                       unitPrice: Number(component.unit_price) || 0,
                       size, height, level, formType
                     });
@@ -165,16 +165,16 @@ export function ProductProvider({ children }) {
       });
       
       // 하이랙 데이터 처리 (기존 로직)
-      if (priceData['하이랙']) {
-        const hiRackData = priceData['하이랙'];
-        const colors = hiRackData['색상'] || [];
-        const heights = ['150', '200', '250'];
-        const levels = ['1단', '2단', '3단', '4단', '5단', '6단'];
-        const formTypes = ['하중형', '일반형'];
+      if (priceData[\'하이랙\']) {
+        const hiRackData = priceData[\'하이랙\'];
+        const colors = hiRackData[\'색상\'] || [];
+        const heights = [\'150\', \'200\', \'250\'];
+        const levels = [\'1단\', \'2단\', \'3단\', \'4단\', \'5단\', \'6단\'];
+        const formTypes = [\'하중형\', \'일반형\'];
         
         colors.forEach(color => {
           const weightOnly = extractWeightOnly(color);
-          const basePrice = hiRackData['기본가'][color] || {};
+          const basePrice = hiRackData[\'기본가\'][color] || {};
           const sizes = Object.keys(basePrice);
           
           sizes.forEach(size => {
@@ -182,13 +182,13 @@ export function ProductProvider({ children }) {
               levels.forEach(level => {
                 formTypes.forEach(formType => {
                   const levelNum = parseInt(level) || 1;
-                  const isForm = formType === 'hardForm';
+                  const isForm = formType === \'hardForm\';
                   
                   // 기둥 처리
                   const pillarPartId = generatePartId({
-                    rackType: '하이랙',
-                    name: '기둥',
-                    specification: `높이 ${height}${weightOnly ? ` ${weightOnly}` : ''}`,
+                    rackType: \'하이랙\',
+                    name: \'기둥\',
+                    specification: `높이 ${height}${weightOnly ? ` ${weightOnly}` : \'\'}`,
                     unitPrice: 0,
                     size, height, level, formType
                   });
@@ -196,22 +196,22 @@ export function ProductProvider({ children }) {
                   if (!materials.has(pillarPartId)) {
                     materials.set(pillarPartId, {
                       partId: pillarPartId,
-                      rackType: '하이랙',
-                      name: '기둥',
-                      specification: `높이 ${height}${weightOnly ? ` ${weightOnly}` : ''}`,
+                      rackType: \'하이랙\',
+                      name: \'기둥\',
+                      specification: `높이 ${height}${weightOnly ? ` ${weightOnly}` : \'\'}`,
                       unitPrice: 0,
                       size, height, level, formType
                     });
                   }
                   
                   // 로드빔 처리
-                  const sizeMatch = String(size).replace(/\s*/g, '').match(/(\d+)\*(\d+)/);
-                  const rodBeamNum = sizeMatch ? sizeMatch[2] : '';
+                  const sizeMatch = String(size).replace(/\s*/g, \'\').match(/(\d+)\*(\d+)/);
+                  const rodBeamNum = sizeMatch ? sizeMatch[2] : \'\';
                   if (rodBeamNum) {
                     const beamPartId = generatePartId({
-                      rackType: '하이랙',
-                      name: '로드빔',
-                      specification: `${rodBeamNum}${weightOnly ? ` ${weightOnly}` : ''}`,
+                      rackType: \'하이랙\',
+                      name: \'로드빔\',
+                      specification: `${rodBeamNum}${weightOnly ? ` ${weightOnly}` : \'\'}`,
                       unitPrice: 0,
                       size, height, level, formType
                     });
@@ -219,9 +219,9 @@ export function ProductProvider({ children }) {
                     if (!materials.has(beamPartId)) {
                       materials.set(beamPartId, {
                         partId: beamPartId,
-                        rackType: '하이랙',
-                        name: '로드빔',
-                        specification: `${rodBeamNum}${weightOnly ? ` ${weightOnly}` : ''}`,
+                        rackType: \'하이랙\',
+                        name: \'로드빔\',
+                        specification: `${rodBeamNum}${weightOnly ? ` ${weightOnly}` : \'\'}`,
                         unitPrice: 0,
                         size, height, level, formType
                       });
@@ -236,15 +236,15 @@ export function ProductProvider({ children }) {
       
       setAllMaterials(materials);
     } catch (error) {
-      console.error('자재 데이터 로드 실패:', error);
+      console.error(\'자재 데이터 로드 실패:\', error);
     }
   }, []);
 
   // 부품 ID 생성 함수 (기존 로직과 동일)
   const generatePartId = useCallback((item) => {
     const { rackType, name, specification } = item;
-    const cleanName = name.replace(/[^\w가-힣]/g, '');
-    const cleanSpec = (specification || '').replace(/[^\w가-힣]/g, '');
+    const cleanName = name.replace(/[^\w가-힣]/g, \'\');
+    const cleanSpec = (specification || \'\').replace(/[^\w가-힣]/g, \'\');
     return `${rackType}-${cleanName}-${cleanSpec}`.toLowerCase();
   }, []);
 
@@ -261,7 +261,7 @@ export function ProductProvider({ children }) {
   }, [adminPrices, generatePartId]);
 
   // 관리자 가격 업데이트
-  const updateAdminPrice = useCallback((partId, price, reason = '') => {
+  const updateAdminPrice = useCallback((partId, price, reason = \'\') => {
     const newPrices = {
       ...adminPrices,
       [partId]: {
@@ -272,13 +272,13 @@ export function ProductProvider({ children }) {
     };
     
     setAdminPrices(newPrices);
-    localStorage.setItem('admin_edit_prices', JSON.stringify(newPrices));
+    localStorage.setItem(\'admin_edit_prices\', JSON.stringify(newPrices));
     
     // 상태 변경 알림
     setRefreshKey(prev => prev + 1);
     
     // 커스텀 이벤트 발생 (기존 이벤트 시스템과의 호환성)
-    window.dispatchEvent(new CustomEvent('adminPriceChanged', {
+    window.dispatchEvent(new CustomEvent(\'adminPriceChanged\', {
       detail: { partId, price, reason }
     }));
   }, [adminPrices]);
@@ -291,7 +291,7 @@ export function ProductProvider({ children }) {
     };
     
     setInventory(newInventory);
-    localStorage.setItem('inventory_data', JSON.stringify(newInventory));
+    localStorage.setItem(\'inventory_data\', JSON.stringify(newInventory));
   }, [inventory]);
 
   // 재고 수량 조회
@@ -311,7 +311,7 @@ export function ProductProvider({ children }) {
         });
       }
     });
-    return parts.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+    return parts.sort((a, b) => a.name.localeCompare(b.name, \'ko\'));
   }, [allMaterials, getEffectiveUnitPrice, getInventoryQuantity]);
 
   // 모든 랙 종류 목록 조회
@@ -339,8 +339,8 @@ export function ProductProvider({ children }) {
 
   // extractWeightOnly 함수 (기존 로직)
   const extractWeightOnly = (color) => {
-    const weightMatch = String(color).replace(/\s*/g, '').match(/(\d+)kg/);
-    return weightMatch ? `${weightMatch[1]}kg` : '';
+    const weightMatch = String(color).replace(/\s*/g, \'\').match(/(\d+)kg/);
+    return weightMatch ? `${weightMatch[1]}kg` : \'\';
   };
 
   // Context 값
@@ -407,7 +407,7 @@ export function ProductProvider({ children }) {
 export const useProducts = () => {
   const context = useContext(ProductContext);
   if (!context) {
-    throw new Error('useProducts must be used within a ProductProvider');
+    throw new Error(\'useProducts must be used within a ProductProvider\');
   }
   return context;
 };
